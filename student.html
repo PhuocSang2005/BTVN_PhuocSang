@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lí sinh viên</title>
+    <link rel="stylesheet" href="build/styles.css">
+</head>
+<body>
+    <div id="main" class="max-w-6xl mx-auto mt-10 bg-white p-8 shadow-md rounded-lg">
+            <div id="form">
+                <h2 class="text-center text-2xl font-semibold uppercase text-gray-800">Quản lí sinh viên</h2>
+                <div class="form_information_input">
+                    <label for="js-upload-student" class="btn-upload mt-4 cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-lg">Chọn ảnh</label>
+                    <input id="js-upload-student" type="file" accept="image/*" class="hidden">
+                    <img id="js-img-student" src="" alt="Xem trước ảnh" class="mt-4 w-20 h-20 rounded-full border" />
+                </div>
+                <form action="" class="mt-8">
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="form__information__input">
+                            <input id="js-name-student" type="text" placeholder="Tên Sinh Viên" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                        </div>
+                        <div class="form__information__input">
+                            <input id="js-age-student" type="text" placeholder="Tuổi Sinh Viên" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                        </div>
+                        <div class="form__information__input">
+                            <input id="js-gender-student" type="text" placeholder="Giới tính Sinh viên" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                        </div>
+                        <div class="form__information__input">
+                            <input id="js-year-of-birth-student" type="text" placeholder="Năm sinh Sinh viên" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                        </div>
+                        <div class="form__information__input">
+                            <input id="js-title-student" type="text" placeholder="Danh hiệu Sinh viên" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                        </div>
+                        <div class="form__information__input">
+                            <input id="js-class-student" type="text" placeholder="Lớp học sinh viên" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="form__add-student flex justify-center gap-4 mt-6">
+                        <input type="submit" value="Thêm Sinh Viên" id="js-add-student" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 cursor-pointer">
+                        <input type="submit" value="Sửa Sinh Viên" id="js-update-student" class="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 cursor-pointer hidden">
+                    </div>
+                </form>
+
+                <div class="form__show__info mt-10">
+                    <h2 class="text-center text-xl font-semibold text-blue-500">Danh Sách Sinh viên</h2>
+                    <div class="show__form-clinic flex justify-center mt-4">
+                        <table class="table-auto w-full border-collapse border border-gray-300">
+                            <thead>
+                                <tr class="bg-blue-500 text-white">
+                                    <th class="p-3 text-left border border-gray-300">Họ tên Sinh Viên</th>
+                                    <th class="p-3 text-left border border-gray-300">Ngày Sinh</th>
+                                    <th class="p-3 text-left border border-gray-300">Lớp</th>
+                                    <th class=" p-3 text-left border border-gray-300">Ảnh sinh viên</th>
+                                    <th class="p-3 text-left border border-gray-300">Danh hiệu</th>
+                                    <th class="p-3 text-left border border-gray-300">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    </div>
+</body>
+<script src="student.js"></script>
+</html>
