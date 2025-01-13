@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Hàm lấy danh sách sinh viên và hiển thị chúng
     async function fetchStudents() {
         try {
             const res = await fetch(API_URL);
@@ -58,11 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
             tableBody.appendChild(row);
         });
 
-
         document.querySelectorAll(".edit-btn").forEach((btn) => btn.addEventListener("click", handleEditStudent));
         document.querySelectorAll(".delete-btn").forEach((btn) => btn.addEventListener("click", handleDeleteStudent));
     }
-    
+
     function resetForm() {
         form.name.value = "";
         form.age.value = "";
@@ -75,54 +75,69 @@ document.addEventListener("DOMContentLoaded", () => {
         editingStudentId = null;
     }
 
-    fetchStudents();
-    //\\ Thêm sinh viên mới//\\
-    addBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        const newStudent = getStudentFormData();
-        if (!newStudent) return;
+    // Hàm thêm sinh viên (POST)
+    async function createStudent(student) {
         try {
             await fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newStudent),
+                body: JSON.stringify(student),
             });
-            await fetchStudents();
-            resetForm();
         } catch (err) {
-            console.error("Đã xảy ra lỗi thêm sinh viên:", err);
+            console.error("Đã xảy ra lỗi khi thêm sinh viên:", err);
         }
+    }
+
+    // Hàm cập nhật sinh viên (PUT)
+    async function updateStudent(id, student) {
+        try {
+            await fetch(`${API_URL}/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(student),
+            });
+        } catch (err) {
+            console.error("Đã xảy ra lỗi khi cập nhật sinh viên:", err);
+        }
+    }
+
+    // Hàm xóa sinh viên (DELETE)
+    async function deleteStudent(id) {
+        try {
+            await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        } catch (err) {
+            console.error("Đã xảy ra lỗi khi xóa sinh viên:", err);
+        }
+    }
+
+    // Thêm sinh viên mới
+    addBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const newStudent = getStudentFormData();
+        if (!newStudent) return;
+
+        await createStudent(newStudent);
+        await fetchStudents();
+        resetForm();
     });
 
-
+    // Cập nhật sinh viên
     updateBtn.addEventListener("click", async (e) => {
         e.preventDefault();
         const updatedStudent = getStudentFormData();
         if (!updatedStudent) return;
 
-        try {
-            await fetch(`${API_URL}/${editingStudentId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedStudent),
-            });
-            await fetchStudents();
-            resetForm();
-            toggleAddUpdateButtons();
-        } catch (err) {
-            console.error("Đã xảy ra lỗi update sinh viên:", err);
-        }
+        await updateStudent(editingStudentId, updatedStudent);
+        await fetchStudents();
+        resetForm();
+        toggleAddUpdateButtons();
     });
 
-
+    // Xóa sinh viên
     async function handleDeleteStudent(event) {
         const id = event.target.dataset.id;
-        try {
-            await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-            await fetchStudents();
-        } catch (err) {
-            console.error("Đã xảy ra lỗi xóa sinh viên:", err);
-        }
+        await deleteStudent(id);
+        await fetchStudents();
     }
 
     //\\ Lấy thông tin sinh viên từ form
@@ -171,5 +186,8 @@ document.addEventListener("DOMContentLoaded", () => {
         updateBtn.classList.toggle("hidden");
     }
 
+    // Khởi chạy lần đầu
+    fetchStudents();
 });
+
 
