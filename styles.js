@@ -131,7 +131,7 @@ if (document.querySelector("form")) {
 }
 
 
-function togglePasswordVisibility(inputId, toggleId) {
+function togglePassword(inputId, toggleId) {
     const input = document.getElementById(inputId);
     const toggle = document.getElementById(toggleId);
 
@@ -143,7 +143,7 @@ function togglePasswordVisibility(inputId, toggleId) {
     });
 }
 
-togglePasswordVisibility("password", "togglePassword");
-togglePasswordVisibility("confirmPassword", "toggleConfirmPassword");
+togglePassword("password", "togglePassword");
+togglePassword("confirmPassword", "toggleConfirmPassword");
 
 
