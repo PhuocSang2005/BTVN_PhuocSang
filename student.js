@@ -1,193 +1,201 @@
 const API_URL = "http://localhost:3000/student";
 
+const createStudent = async (student) => {
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(student),
+        });
+        if (!response.ok) throw new Error("Lỗi khi thêm sinh viên.");
+        return await response.json();
+    } catch (err) {
+        console.error("Lỗi:", err);
+    }
+};
+
+// Hàm cập nhật sinh viên
+const updateStudent = async (id, newData) => {
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newData),
+        });
+        if (!response.ok) throw new Error("Lỗi khi cập nhật sinh viên.");
+        return await response.json();
+    } catch (err) {
+        console.error("Lỗi:", err);
+    }
+};
+
+// Hàm xóa sinh viên
+const deleteStudent = async (id) => {
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) throw new Error("Lỗi khi xóa sinh viên.");
+        return await response.json();
+    } catch (err) {
+        console.error("Lỗi:", err);
+    }
+};
+
+// Hàm lấy danh sách sinh viên
+const fetchStudents = async () => {
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Lỗi khi lấy danh sách sinh viên.");
+        return await response.json();
+    } catch (err) {
+        console.error("Lỗi:", err);
+    }
+};
+
+// Hàm lấy thông tin chi tiết của sinh viên
+const getStudentById = async (id) => {
+    try {
+        const response = await fetch(`${API_URL}/${id}`);
+        if (!response.ok) throw new Error("Lỗi khi lấy thông tin sinh viên.");
+        return await response.json();
+    } catch (err) {
+        console.error("Lỗi:", err);
+    }
+};
+
+// Hàm hiển thị danh sách sinh viên lên giao diện
+const renderStudentList = async () => {
+    const tableBody = document.querySelector("tbody");
+    try {
+        const students = await fetchStudents();
+        tableBody.innerHTML = "";
+        students.forEach((student) => {
+            const row = `
+                <tr>
+                    <td class="p-3 border border-gray-300">${student.name}</td>
+                    <td class="p-3 border border-gray-300">${student.yearOfBirth}</td>
+                    <td class="p-3 border border-gray-300">${student.class}</td>
+                    <td class="p-3 border border-gray-300"><img src="${student.image}" alt="Student Image" class="w-10 h-10 rounded-full"></td>
+                    <td class="p-3 border border-gray-300">${student.title}</td>
+                    <td class="p-3 border border-gray-300">
+                        <button class="bg-yellow-500 text-white px-3 py-1 rounded edit-btn" data-id="${student.id}">Sửa</button>
+                        <button class="bg-red-500 text-white px-3 py-1 rounded delete-btn" data-id="${student.id}">Xóa</button>
+                    </td>
+                </tr>`;
+            tableBody.insertAdjacentHTML("beforeend", row);
+        });
+
+
+        document.querySelectorAll(".edit-btn").forEach((btn) =>
+            btn.addEventListener("click", async (event) => {
+                const id = event.target.dataset.id;
+                const student = await getStudentById(id);
+                populateForm(student, id);
+            })
+        );
+
+        document.querySelectorAll(".delete-btn").forEach((btn) =>
+            btn.addEventListener("click", async (event) => {
+                const id = event.target.dataset.id;
+                await deleteStudent(id);
+                renderStudentList();
+            })
+        );
+    } catch (err) {
+        console.error("Lỗi khi hiển thị danh sách sinh viên:", err);
+    }
+};
+
+// Hàm điền thông tin vào form khi chỉnh sửa
+const populateForm = (student, id) => {
+    document.getElementById("js-name-student").value = student.name;
+    document.getElementById("js-age-student").value = student.age;
+    document.getElementById("js-gender-student").value = student.gender;
+    document.getElementById("js-year-of-birth-student").value = student.yearOfBirth;
+    document.getElementById("js-title-student").value = student.title;
+    document.getElementById("js-class-student").value = student.class;
+    document.getElementById("js-img-student").src = student.image;
+    document.getElementById("js-img-student").dataset.imageLink = student.image;
+
+    document.getElementById("js-update-student").dataset.id = id;
+
+    document.getElementById("js-add-student").classList.add("hidden");
+    document.getElementById("js-update-student").classList.remove("hidden");
+};
+
 document.addEventListener("DOMContentLoaded", () => {
-    const form = {
-        name: document.getElementById("js-name-student"),
-        age: document.getElementById("js-age-student"),
-        gender: document.getElementById("js-gender-student"),
-        yearOfBirth: document.getElementById("js-year-of-birth-student"),
-        title: document.getElementById("js-title-student"),
-        studentClass: document.getElementById("js-class-student"),
-        image: document.getElementById("js-upload-student"),
-        imagePreview: document.getElementById("js-img-student"),
-    };
     const addBtn = document.getElementById("js-add-student");
     const updateBtn = document.getElementById("js-update-student");
-    const tableBody = document.querySelector("tbody");
-    let editingStudentId = null;
+    const imageInput = document.getElementById("js-upload-student");
+    const imagePreview = document.getElementById("js-img-student");
 
-    //\\\ Xử lý chọn ảnh
-    form.image.addEventListener("change", (event) => {
+    
+    imageInput.addEventListener("change", (event) => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                form.imagePreview.src = e.target.result;
-                form.imagePreview.dataset.imageLink = e.target.result;
+                imagePreview.src = e.target.result; 
+                imagePreview.dataset.imageLink = e.target.result;
             };
             reader.readAsDataURL(file);
         }
     });
 
-    // Hàm lấy danh sách sinh viên và hiển thị chúng
-    async function fetchStudents() {
-        try {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-            renderStudentList(data);
-        } catch (err) {
-            console.error("Đã xảy ra lỗi khi lấy sinh viên:", err);
-        }
-    }
-
-    // Hiển thị danh sách sinh viên
-    function renderStudentList(students) {
-        tableBody.innerHTML = "";
-        students.forEach((student) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td class="p-3 border border-gray-300">${student.name}</td>
-                <td class="p-3 border border-gray-300">${student.yearOfBirth}</td>
-                <td class="p-3 border border-gray-300">${student.class}</td>
-                <td class="p-3 border border-gray-300"><img src="${student.image}" alt="Student Image" class="w-10 h-10 rounded-full"></td>
-                <td class="p-3 border border-gray-300">${student.title}</td>
-                <td class="p-3 border border-gray-300">
-                    <button class="bg-yellow-500 text-white px-3 py-1 rounded edit-btn" data-id="${student.id}">Sửa</button>
-                    <button class="bg-red-500 text-white px-3 py-1 rounded delete-btn" data-id="${student.id}">Xóa</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
-
-        document.querySelectorAll(".edit-btn").forEach((btn) => btn.addEventListener("click", handleEditStudent));
-        document.querySelectorAll(".delete-btn").forEach((btn) => btn.addEventListener("click", handleDeleteStudent));
-    }
-
-    function resetForm() {
-        form.name.value = "";
-        form.age.value = "";
-        form.gender.value = "";
-        form.yearOfBirth.value = "";
-        form.title.value = "";
-        form.studentClass.value = "";
-        form.imagePreview.src = "";
-        form.imagePreview.dataset.imageLink = "";
-        editingStudentId = null;
-    }
-
-    // Hàm thêm sinh viên (POST)
-    async function createStudent(student) {
-        try {
-            await fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(student),
-            });
-        } catch (err) {
-            console.error("Đã xảy ra lỗi khi thêm sinh viên:", err);
-        }
-    }
-
-    // Hàm cập nhật sinh viên (PUT)
-    async function updateStudent(id, student) {
-        try {
-            await fetch(`${API_URL}/${id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(student),
-            });
-        } catch (err) {
-            console.error("Đã xảy ra lỗi khi cập nhật sinh viên:", err);
-        }
-    }
-
-    // Hàm xóa sinh viên (DELETE)
-    async function deleteStudent(id) {
-        try {
-            await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-        } catch (err) {
-            console.error("Đã xảy ra lỗi khi xóa sinh viên:", err);
-        }
-    }
-
-    // Thêm sinh viên mới
+    // Thêm sinh viên
     addBtn.addEventListener("click", async (e) => {
         e.preventDefault();
-        const newStudent = getStudentFormData();
-        if (!newStudent) return;
-
-        await createStudent(newStudent);
-        await fetchStudents();
+        const student = getStudentFormData();
+        if (!student) return;
+        await createStudent(student);
+        renderStudentList();
         resetForm();
     });
 
     // Cập nhật sinh viên
     updateBtn.addEventListener("click", async (e) => {
         e.preventDefault();
-        const updatedStudent = getStudentFormData();
-        if (!updatedStudent) return;
-
-        await updateStudent(editingStudentId, updatedStudent);
-        await fetchStudents();
+        const student = getStudentFormData();
+        const editingStudentId = updateBtn.dataset.id;
+        if (!student || !editingStudentId) return;
+        await updateStudent(editingStudentId, student);
+        renderStudentList();
         resetForm();
-        toggleAddUpdateButtons();
     });
 
-    // Xóa sinh viên
-    async function handleDeleteStudent(event) {
-        const id = event.target.dataset.id;
-        await deleteStudent(id);
-        await fetchStudents();
-    }
-
-    //\\ Lấy thông tin sinh viên từ form
-    function getStudentFormData() {
-        const name = form.name.value.trim();
-        const age = form.age.value.trim();
-        const gender = form.gender.value.trim();
-        const yearOfBirth = form.yearOfBirth.value.trim();
-        const title = form.title.value.trim();
-        const studentClass = form.studentClass.value.trim();
-        const image = form.imagePreview.dataset.imageLink;
-
-        if (!name || !age || !gender || !yearOfBirth || !title || !studentClass || !image) {
-            alert("Vui lòng điền đầy đủ thông tin.");
-            return null;
-        }
-
-        return { name, age, gender, yearOfBirth, title, class: studentClass, image };
-    }
-
-    //\\ Sửa sinh viên
-    async function handleEditStudent(event) {
-        const id = event.target.dataset.id;
-
-        try {
-            const res = await fetch(`${API_URL}/${id}`);
-            const student = await res.json();
-            form.name.value = student.name;
-            form.age.value = student.age;
-            form.gender.value = student.gender;
-            form.yearOfBirth.value = student.yearOfBirth;
-            form.title.value = student.title;
-            form.studentClass.value = student.class;
-            form.imagePreview.src = student.image;
-            form.imagePreview.dataset.imageLink = student.image;
-
-            editingStudentId = id;
-            toggleAddUpdateButtons();
-        } catch (err) {
-            console.error("Lỗi khi lấy dữ liệu học sinh:", err);
-        }
-    }
-
-    function toggleAddUpdateButtons() {
-        addBtn.classList.toggle("hidden");
-        updateBtn.classList.toggle("hidden");
-    }
-
-    // Khởi chạy lần đầu
-    fetchStudents();
+    renderStudentList();
 });
+
+const getStudentFormData = () => {
+    const name = document.getElementById("js-name-student").value.trim();
+    const age = document.getElementById("js-age-student").value.trim();
+    const gender = document.getElementById("js-gender-student").value.trim();
+    const yearOfBirth = document.getElementById("js-year-of-birth-student").value.trim();
+    const title = document.getElementById("js-title-student").value.trim();
+    const studentClass = document.getElementById("js-class-student").value.trim();
+    const image = document.getElementById("js-img-student").dataset.imageLink; 
+
+    if (!name || !age || !gender || !yearOfBirth || !title || !studentClass || !image) {
+        alert("Vui lòng điền đầy đủ thông tin.");
+        return null;
+    }
+
+    return { name, age, gender, yearOfBirth, title, class: studentClass, image };
+};
+
+const resetForm = () => {
+    document.getElementById("js-name-student").value = "";
+    document.getElementById("js-age-student").value = "";
+    document.getElementById("js-gender-student").value = "";
+    document.getElementById("js-year-of-birth-student").value = "";
+    document.getElementById("js-title-student").value = "";
+    document.getElementById("js-class-student").value = "";
+    const imagePreview = document.getElementById("js-img-student");
+    imagePreview.src = "";
+    imagePreview.dataset.imageLink = ""; 
+    document.getElementById("js-add-student").classList.remove("hidden");
+    document.getElementById("js-update-student").classList.add("hidden");
+};
 
 
