@@ -131,4 +131,19 @@ if (document.querySelector("form")) {
 }
 
 
+function togglePasswordVisibility(inputId, toggleId) {
+    const input = document.getElementById(inputId);
+    const toggle = document.getElementById(toggleId);
+
+    toggle.addEventListener("click", () => {
+        const isPassword = input.getAttribute("type") === "password";
+        input.setAttribute("type", isPassword ? "text" : "password");
+        toggle.classList.toggle("text-gray-500");
+        toggle.classList.toggle("text-blue-500");
+    });
+}
+
+togglePasswordVisibility("password", "togglePassword");
+togglePasswordVisibility("confirmPassword", "toggleConfirmPassword");
+
 
